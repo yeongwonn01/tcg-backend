@@ -52,8 +52,13 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/${{ secrets.EC2_USER }}/tcg-backend
-            # 최신 이미지 받아오기
-            sudo docker-compose pull
-            # 백그라운드 모드로 실행
+            cd /home/ec2-user/tcg-backend
+
+            # 1. .jar 빌드
+            ./mvnw clean package -DskipTests
+
+            # 2. Docker 이미지 빌드
+            sudo docker-compose build
+
+            # 3. 컨테이너 실행
             sudo docker-compose up -d
