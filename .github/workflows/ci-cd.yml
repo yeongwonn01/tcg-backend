@@ -54,8 +54,7 @@ jobs:
           script: |
             cd /home/${{ secrets.EC2_USER }}/tcg-backend
             
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
-              | docker login --username AWS --password-stdin ${{ secrets.ECR_DOMAIN }}
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_URI }}
             
             sudo docker-compose pull
             
