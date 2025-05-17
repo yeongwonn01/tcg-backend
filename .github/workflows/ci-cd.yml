@@ -45,13 +45,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Login to ECR
-        uses: aws-actions/amazon-ecr-login@v1
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
       - name: SSH and deploy via docker-compose
         uses: appleboy/ssh-action@master
         with:
@@ -61,7 +54,9 @@ jobs:
           script: |
             cd /home/${{ secrets.EC2_USER }}/tcg-backend
             
-            # 최신 이미지 받아오기
-            docker-compose pull
-            # 백그라운드 모드로 실행
-            docker-compose up -d
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
+              | docker login --username AWS --password-stdin ${{ secrets.ECR_DOMAIN }}
+            
+            sudo docker-compose pull
+            
+            sudo docker-compose up -d
