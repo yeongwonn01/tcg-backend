@@ -52,7 +52,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/${{ secrets.EC2_USER }}/my-app
+            cd /home/${{ secrets.EC2_USER }}/tcg-backend
             # 최신 이미지 받아오기
             docker-compose pull
             # 백그라운드 모드로 실행
