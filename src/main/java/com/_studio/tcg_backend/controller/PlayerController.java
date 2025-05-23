@@ -7,30 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com._studio.tcg_backend.dto.RegisterRequest;
+import com._studio.tcg_backend.dto.PlayerResponse;
+
 
 @RestController
 @RequestMapping("/api/player")
 public class PlayerController {
-
-    public class PlayerResponse {
-        private Long id;
-        private String username;
-        private String nickname;
-        private int level;
-        private int gold;
-        private int gems;
-
-        public PlayerResponse(Player player) {
-            this.id = player.getId();
-            this.username = player.getUsername();
-            this.nickname = player.getNickname();
-            this.level = player.getLevel();
-            this.gold = player.getGold();
-            this.gems = player.getGems();
-        }
-
-        // Getter 생략 가능 (Lombok 사용 시 @Getter 붙여도 됨)
-    }
 
     @Autowired
     private PlayerService playerService;
