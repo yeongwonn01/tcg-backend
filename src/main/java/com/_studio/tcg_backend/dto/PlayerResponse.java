@@ -18,8 +18,6 @@ public class PlayerResponse {
         this.gold = player.getGold();
         this.gems = player.getGems();
     }
-
-    // getter 생략하지 말고 붙이기
     public Long getId() { return id; }
     public String getUsername() { return username; }
     public String getNickname() { return nickname; }
