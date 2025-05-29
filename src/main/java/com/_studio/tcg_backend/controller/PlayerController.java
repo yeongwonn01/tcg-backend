@@ -9,7 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import com._studio.tcg_backend.dto.RegisterRequest;
 import com._studio.tcg_backend.dto.PlayerResponse;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 
+import jakarta.servlet.http.HttpSession;
 @RestController
 @RequestMapping("/api/player")
 public class PlayerController {
@@ -32,11 +36,29 @@ public class PlayerController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<PlayerResponse> login(@RequestBody Player loginPlayer) {
+    public ResponseEntity<PlayerResponse> login(
+            @RequestBody Player loginPlayer,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
         return playerService.login(loginPlayer.getUsername(), loginPlayer.getPassword())
-                .map(player -> ResponseEntity.ok(new PlayerResponse(player)))
+                .map(player -> {
+                    // 1) 세션 생성
+                    HttpSession session = request.getSession(true);
+                    session.setAttribute("playerId", player.getId());
+                    // 2) JSESSIONID 쿠키 직접 설정 (Spring Boot 기본 JSESSIONID 사용)
+                    Cookie cookie = new Cookie("JSESSIONID", session.getId());
+                    cookie.setPath("/");
+                    cookie.setHttpOnly(true);
+                    cookie.setSecure(true); // HTTPS 환경에서만 전송
+                    cookie.setMaxAge(30 * 60); // 30분
+                    response.addCookie(cookie);
+
+                    return ResponseEntity.ok(new PlayerResponse(player));
+                })
                 .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
+
 
 }
 
