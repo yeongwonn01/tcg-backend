@@ -36,4 +36,17 @@ public class GameController {
         GameDeck savedDeck = gameService.startGame(req);
         return ResponseEntity.ok(savedDeck);
     }
+
+    @GetMapping("/deck")
+    public ResponseEntity<GameDeck> getUserDeck(HttpServletRequest req) {
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("playerId") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Long playerId = (Long) session.getAttribute("playerId");
+        GameDeck deck = gameService.findDeckByPlayerId(playerId);
+        return deck != null
+                ? ResponseEntity.ok(deck)
+                : ResponseEntity.noContent().build();
+    }
 }

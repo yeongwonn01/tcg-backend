@@ -9,6 +9,7 @@ public class GameDeck {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long playerId;
     @ElementCollection
     @CollectionTable(name = "game_deck_cards", joinColumns = @JoinColumn(name = "game_deck_id"))
     @Column(name = "card_id")
@@ -19,8 +20,9 @@ public class GameDeck {
 
     public GameDeck() {}
 
-    public GameDeck(List<Integer> cardIDs) {
-        this.cardIDs = cardIDs;
+    public GameDeck(Long playerId, List<Integer> cardIDs) {
+        this.playerId = playerId;
+        this.cardIDs  = cardIDs;
     }
 
     public Long getId() {
@@ -33,5 +35,11 @@ public class GameDeck {
 
     public void setCardIDs(List<Integer> cardIDs) {
         this.cardIDs = cardIDs;
+    }
+    public Long getPlayerId() {
+        return playerId;
+    }
+    public void setPlayerId(Long playerId) {
+        this.playerId = playerId;
     }
 }

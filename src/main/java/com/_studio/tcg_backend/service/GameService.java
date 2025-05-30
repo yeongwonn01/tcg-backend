@@ -14,8 +14,17 @@ public class GameService {
     }
 
     @Transactional
-    public GameDeck startGame(GameStartRequest req) {
-        GameDeck deck = new GameDeck(req.getCardIDs());
+    public GameDeck startGame(GameStartRequest req, Long playerId) {
+        // 기존 로직에 playerId 전달
+        GameDeck deck = new GameDeck(playerId, req.getCardIDs());
         return deckRepo.save(deck);
+    }
+
+    // ← 새로 추가
+    @Transactional(readOnly = true)
+    public GameDeck findDeckByPlayerId(Long playerId) {
+        return deckRepo
+                .findByPlayerId(playerId)
+                .orElse(null);  // 덱이 없으면 null 반환하거나, 예외 던질 수 있습니다
     }
 }
