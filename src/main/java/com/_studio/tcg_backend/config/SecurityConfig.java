@@ -29,7 +29,7 @@ public class SecurityConfig {
                         .permitAll()
                         // 게임 관련 API는 인증된 사용자만
                         .requestMatchers("/api/game/**")
-                        .authenticated()
+                        .permitAll()
                         // 그 외는 모두 허용
                         .anyRequest()
                         .permitAll()
