@@ -25,17 +25,20 @@ public class GameController {
     @PostMapping("/start")
     public ResponseEntity<GameDeck> startGame(
             @RequestBody GameStartRequest req,
-            HttpServletRequest request
+            HttpServletRequest httpReq
     ) {
-        HttpSession session = request.getSession(false);
+        HttpSession session = httpReq.getSession(false);
         if (session == null || session.getAttribute("playerId") == null) {
             // 쿠키가 없거나, 세션에 playerId가 없으면 401
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         Long playerId = (Long) session.getAttribute("playerId");
-        GameDeck savedDeck = gameService.startGame(req);
+        // service 메서드 시그니처에 맞춰 playerId를 함께 넘겨줍니다.
+        GameDeck savedDeck = gameService.startGame(req, playerId);
         return ResponseEntity.ok(savedDeck);
     }
+
+
 
     @GetMapping("/deck")
     public ResponseEntity<GameDeck> getUserDeck(HttpServletRequest req) {
