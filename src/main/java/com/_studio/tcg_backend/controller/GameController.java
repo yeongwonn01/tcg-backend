@@ -1,5 +1,6 @@
 package com._studio.tcg_backend.controller;
 
+import com._studio.tcg_backend.dto.DeckSaveRequest;
 import com._studio.tcg_backend.dto.GameStartRequest;
 import com._studio.tcg_backend.model.GameDeck;
 import com._studio.tcg_backend.service.GameService;
@@ -52,4 +53,32 @@ public class GameController {
                 ? ResponseEntity.ok(deck)
                 : ResponseEntity.noContent().build();
     }
+    @PostMapping("/deck")
+    public ResponseEntity<?> saveUserDeck(
+            @RequestBody DeckSaveRequest req,
+            HttpServletRequest httpReq
+    ) {
+        HttpSession session = httpReq.getSession(false);
+        if (session == null || session.getAttribute("playerId") == null) {
+            // 로그인 세션이 없으면 401 Unauthorized
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Long playerId = (Long) session.getAttribute("playerId");
+
+        // 1) 기존에 해당 playerId로 저장된 덱이 있는지 조회
+        GameDeck existingDeck = gameService.findDeckByPlayerId(playerId);
+
+        if (existingDeck == null) {
+            // 2) 덱이 아직 없었다면, 새로 생성
+            GameDeck newDeck = new GameDeck(playerId, req.getCardIDs());
+            gameService.saveNewDeck(newDeck);
+        } else {
+            // 3) 이미 덱이 있다면, 목록(cardIDs)만 교체해서 업데이트
+            existingDeck.setCardIDs(req.getCardIDs());
+            gameService.updateDeck(existingDeck);
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
 }

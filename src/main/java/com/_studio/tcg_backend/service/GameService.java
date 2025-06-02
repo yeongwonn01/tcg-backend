@@ -27,4 +27,16 @@ public class GameService {
                 .findByPlayerId(playerId)
                 .orElse(null);  // 덱이 없으면 null 반환하거나, 예외 던질 수 있습니다
     }
+
+    @Transactional
+    public void saveNewDeck(GameDeck newDeck) {
+        deckRepo.save(newDeck);
+    }
+
+    @Transactional
+    public void updateDeck(GameDeck existingDeck) {
+        // JPA 엔티티이므로, setCardIDs 후 save()를 호출하거나,
+        // flush() → 트랜잭션 커밋 시 변경사항이 자동 반영됩니다.
+        deckRepo.save(existingDeck);
+    }
 }
