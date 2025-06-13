@@ -8,6 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com._studio.tcg_backend.dto.RegisterRequest;
 import com._studio.tcg_backend.dto.PlayerResponse;
+import com._studio.tcg_backend.dto.CardDrawRequest;
+import com._studio.tcg_backend.dto.CardUpgradeRequest;
+import java.util.List;
+import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,6 +63,58 @@ public class PlayerController {
                 .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
+    @PostMapping("/cards/draw")
+    public ResponseEntity<?> drawCards(
+            @RequestBody CardDrawRequest request,
+            HttpServletRequest httpReq
+    ) {
+        HttpSession session = httpReq.getSession(false);
+        if (session == null || session.getAttribute("playerId") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
+        try {
+            Long playerId = (Long) session.getAttribute("playerId");
+            List<Integer> drawnCards = playerService.drawCards(playerId, request.getDrawCount());
+            return ResponseEntity.ok(drawnCards);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/cards/upgrade")
+    public ResponseEntity<?> upgradeCard(
+            @RequestBody CardUpgradeRequest request,
+            HttpServletRequest httpReq
+    ) {
+        HttpSession session = httpReq.getSession(false);
+        if (session == null || session.getAttribute("playerId") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            Long playerId = (Long) session.getAttribute("playerId");
+            boolean success = playerService.upgradeCard(playerId, request.getCardId(), request.getUpgradeCount());
+            return ResponseEntity.ok(success);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/cards")
+    public ResponseEntity<?> getPlayerCards(HttpServletRequest httpReq) {
+        HttpSession session = httpReq.getSession(false);
+        if (session == null || session.getAttribute("playerId") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            Long playerId = (Long) session.getAttribute("playerId");
+            Map<Integer, Integer> cards = playerService.getPlayerCards(playerId);
+            return ResponseEntity.ok(cards);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
 

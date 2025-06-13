@@ -1,7 +1,8 @@
 package com._studio.tcg_backend.domain;
 
-
 import jakarta.persistence.*;
+import java.util.Map;
+import java.util.HashMap;
 
 @Entity
 public class Player {
@@ -22,6 +23,12 @@ public class Player {
     private int level;
     private int gold;
     private int gems;
+
+    @ElementCollection
+    @CollectionTable(name = "player_cards", joinColumns = @JoinColumn(name = "player_id"))
+    @MapKeyColumn(name = "card_id")
+    @Column(name = "count")
+    private Map<Integer, Integer> ownedCards = new HashMap<>(); // cardId -> count
 
     public String getPassword() {
         return password;
@@ -74,5 +81,34 @@ public class Player {
 
     public void setGems(int gems) {
         this.gems = gems;
+    }
+
+    public Map<Integer, Integer> getOwnedCards() {
+        return ownedCards;
+    }
+
+    public void setOwnedCards(Map<Integer, Integer> ownedCards) {
+        this.ownedCards = ownedCards;
+    }
+
+    public void addCard(int cardId, int count) {
+        ownedCards.merge(cardId, count, Integer::sum);
+    }
+
+    public boolean removeCard(int cardId, int count) {
+        Integer currentCount = ownedCards.get(cardId);
+        if (currentCount == null || currentCount < count) {
+            return false;
+        }
+        if (currentCount == count) {
+            ownedCards.remove(cardId);
+        } else {
+            ownedCards.put(cardId, currentCount - count);
+        }
+        return true;
+    }
+
+    public int getCardCount(int cardId) {
+        return ownedCards.getOrDefault(cardId, 0);
     }
 }
